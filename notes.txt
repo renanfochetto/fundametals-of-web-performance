@@ -1,0 +1,231 @@
+TOPICS
+1. IMPORTANCE
+2. MEASURING
+3. TESTS AND TOOLS
+4. SETTING GOALS
+5. IMPROVING
+
+
+1. IMPORTANCE:
+Three reasons for web performance:
+
+- User experience;
+- SEO;
+- Online Adverrtising.
+
+"For effective communication, some response is needed within two seconds of a request.
+A wait longer than two secondes breaks concentration and affects productivity."
+
+USERS EXPECTATIONS
+- A user feels a response is instant at .01 seconds;
+- A user experiences uninterrupted flor at 1 second;
+- Users break flow and feel frustration at 10 seconds.
+
+- 40% os users abandon a site at 3 seconds;
+- 75% os users that experience a "slow" site will not return.
+
+
+SEO
+"Search ranking change that incorporates page experience metrics. We will introduce a new
+signal that combines Core Web Vitals with our existing signals."
+
+"You need to be fast to rank well."
+
+
+ONLINE ADVERTISING
+"Page speed is a ranking factor for Google Ads. A slow page can lead to a lower Quality Score,
+which can increase your cost per click and reduce your ad position."
+
+Bounce rate and performance are directly related for a lot of websites.
+
+"65% performance improvement reduced bounce rate 20% and 200% time on page."
+
+"100ms improvement in page load time resulted in 1% increase in revenue per visitor."
+"1 second improvement in page load time resulted in 27% increase in conversion rate."
+
+
+2. MEASURING:
+- Legacy metrics;
+- Core Web Vitals;
+- More metrics;
+- Capturing metrics;
+- Browser support.
+
+
+Waterfall Charts:
+- A waterfall chart is a visual representation of the loading process of a web page.
+- It shows the time taken for each resource to load and how they are related to each other.
+- It helps identify bottlenecks and optimize loading times.
+
+Flame Charts:
+- It's a different dimension of the waterfall chart.
+- It's to measure time and is measured in milliseconds and microseconds.
+- The size of the bars indicates how much of the parent task was the child task consuming.
+
+GRAY: Browser Tasks
+BLUE: Parse HTML
+PURPLE: Layout and Paint
+DARK YELLOW: Evaluate and Compile Scripts (passthrough) - TOP LEVEL OF JAVASCRIPT
+LIGHT YELLOW: Javascript Execution (working)
+GREEN: Extensions
+
+
+Why are Flame Charts important in web performance?
+We have to talk about the main thread on the browser, the single thread of work the browser has for handling user events,
+layout, paint, and running Javascript.
+
+Everything is operating in a single thread called the main thread.
+
+So if you write a bunch of Javascript that is really slow and does a whole bunch of work, it can stop other things
+from happening, other things like firing events, laying out the document and painting things.
+
+It can stop things from happening that the user would expect to happen.
+
+LEGACY METRICS
+
+- DOMContentLoaded:
+The HTML downloaded and deferred scripts have executed. Images might not have loaded but
+the HTML document itself is done.
+
+- Load:
+The page is fully loaded, including all images and other resources (except those that
+are lazy-loaded).
+
+THE PROBLEM WITH THE LEGACY METRICS
+- They are not user-centric;
+- They are not real-world metrics;
+
+The beginning of the client-side rendering single-page applications change the structure
+of the web pages. The legacy metrics are not enough to measure the performance of these
+pages.
+
+After it, Google started to measure the performance of the web pages using the Core Web Vitals.
+
+
+CORE WEB VITALS
+
+The core web vitals measure three things, three specific kinds of performance:
+1. How fast your site visibly loads;
+2. How smooth things load;
+3. How quickly users can interact.
+
+Those are measured with three different metrics called:
+- Largest Contentful Paint (LCP);
+- Cumulative Layout Shift (CLS);
+- Interaction to Next Paint (INP).
+
+"Search ranking incorporates the [CORE WEB VITALS] page experience metrics."
+
+
+LARGEST CONTENTFUL PAINT (LCP)
+How fast your site visibly loads the most important element but instead they measure the largest;
+
+What is the Largest?
+- <img>;
+- <video>;
+- css:background-image;
+- Text-elements;
+
+There are some rules to define what is the Largest:
+- Opacity > 0;
+- Size < 100% (if is 100% it's probably a background image);
+- Low Entropy Images < 0.05.
+
+What is Entropy?
+Entropy is calculated by the number of bits per visible pixel shown.
+
+Ex:
+One image with 31,101,368 bytes rendering at full size as 2800 x 1200 withe 3.360,000 pixels.
+The Entropy is calculated by simple dividing the number of the bits for the number of the pixels, in the example
+we will have an entropy of 9.39.
+
+Considerations:
+LCP measurement stops after the first user interaction.
+
+How fast it needs to be?
+To be classified as 'Good', the content needs to render at 2.5sec. If is between 2.5sec and 4.0 sec it is classified
+as 'Needs Improvement', after 4.0sec is considered 'Poor'.
+
+- 0 to 2.5sec = GOOD;
+- 2.5sec to 4.0sec = NEEDS IMPROVEMENT;
+- after 4.0sec = POOR.
+
+- Hovering are not considering as a User Interaction, only clicks;
+
+
+CUMULATIVE LAYOUT SHIFT (CLS)
+CLS measure how smooth and predictably elements load into the page, because if the user feels like is predictable
+they can start to interact sooner.
+
+A layout shift is measured by the impact fraction. How much of the page was impacted by the move, times the distance fraction,
+so how much across the viewport did it move. It's only concerned with the viewport.
+
+How much of that viewport was impacted by the shift and how far across the viewport did it move.
+
+Layout shift happens in both dimensions, width and height.
+
+Layout shift happens in every device, Mobile, Desktop, Tablet, etc, and Google cares about all of them.
+
+Example:
+- Viewport height of 768px (In the example it only shifts down).
+- The impact size is the whole thing, and in the example is 708px;
+- The impact fraction is calculated byt the impact size divided by the height: 708 / 768 = 0.922;
+
+92.2% of the viewport was impacted by this layout shift.
+
+Distance moved is 180px, so the Distance Fraction is 180 / 768px = 0.234 or 23%;
+
+So, the score of the layout is the multiplication of those two things together, so 0.922 * 0.234 = 0.215;
+
+The cumulative means the sum of all layout shifts. It should be 1, 2,3 or more layout shifts.
+
+If the layout shift happens in less than 500ms for user actions it doesn't count.
+
+The classification is 0.1sec as GOOD, between 0.1sec to 0.25sec as NEEDS IMPROVEMENT and after 0.25sec as POOR;
+- 0.1sec = GOOD;
+- 0.1sec to 0.25sec = NEEDS IMPROVEMENT;
+- after 0.25sec = POOR.
+
+The use of skeletons should prevent layout shifts, because the space is reserved and when you swap it out the
+layout does not move around it.
+
+
+INTERACTION TO THE NEXT PAINT (INP)
+How long does it take between an interaction and the next the browser can paint.
+
+How quickly users can interact.
+
+If the user have no interaction you will not have an INP score.
+
+What is an interaction?
+- Click;
+- Drag;
+- Touch;
+- Keypress.
+
+BUT NOT:
+- Scroll.
+
+When you click in a button, the INP is measuring the time from that click and the update of the clicked element.
+
+The fundamental tactic to have a good measurement is to paint sooner, and we can do less.
+
+Another way is to user asynchronous calls and functions.
+
+INP is not measure a single time it happens its measuring every time it happens, it's noty adding them together, but
+it is picking the worst one.
+
+Every time the user interact it generates an INP.
+
+CONSIDERATIONS
+- There might not be an interaction;
+- We don't know the worst until it's over;
+- Heavily influenced by device capability.
+
+The classification is 0 to 200ms as GOOD, between 200ms and 500ms as NEEDS IMPROVEMENT and after 500ms as POOR;
+- 0 to 200ms = GOOD;
+- 200ms to 500ms = NEEDS IMPROVEMENT;
+- after 500ms = POOR.
+
+That's the importance of using Spinners or Loading messages between calls and interactions, because the spinners and
+the loading messages are considered as a painting.
