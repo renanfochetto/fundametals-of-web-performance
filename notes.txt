@@ -16,7 +16,7 @@ Three reasons for web performance:
 "For effective communication, some response is needed within two seconds of a request.
 A wait longer than two secondes breaks concentration and affects productivity."
 
-USERS EXPECTATIONS
+1.1 USERS EXPECTATIONS
 - A user feels a response is instant at .01 seconds;
 - A user experiences uninterrupted flor at 1 second;
 - Users break flow and feel frustration at 10 seconds.
@@ -25,14 +25,14 @@ USERS EXPECTATIONS
 - 75% os users that experience a "slow" site will not return.
 
 
-SEO
+1.2 SEO
 "Search ranking change that incorporates page experience metrics. We will introduce a new
 signal that combines Core Web Vitals with our existing signals."
 
 "You need to be fast to rank well."
 
 
-ONLINE ADVERTISING
+1.3 ONLINE ADVERTISING
 "Page speed is a ranking factor for Google Ads. A slow page can lead to a lower Quality Score,
 which can increase your cost per click and reduce your ad position."
 
@@ -81,7 +81,7 @@ from happening, other things like firing events, laying out the document and pai
 
 It can stop things from happening that the user would expect to happen.
 
-LEGACY METRICS
+2.1 LEGACY METRICS
 
 - DOMContentLoaded:
 The HTML downloaded and deferred scripts have executed. Images might not have loaded but
@@ -102,7 +102,7 @@ pages.
 After it, Google started to measure the performance of the web pages using the Core Web Vitals.
 
 
-CORE WEB VITALS
+2.2 CORE WEB VITALS
 
 The core web vitals measure three things, three specific kinds of performance:
 1. How fast your site visibly loads;
@@ -117,7 +117,7 @@ Those are measured with three different metrics called:
 "Search ranking incorporates the [CORE WEB VITALS] page experience metrics."
 
 
-LARGEST CONTENTFUL PAINT (LCP)
+2.2.1 LARGEST CONTENTFUL PAINT (LCP)
 How fast your site visibly loads the most important element but instead they measure the largest;
 
 What is the Largest?
@@ -153,7 +153,7 @@ as 'Needs Improvement', after 4.0sec is considered 'Poor'.
 - Hovering are not considering as a User Interaction, only clicks;
 
 
-CUMULATIVE LAYOUT SHIFT (CLS)
+2.2.2 CUMULATIVE LAYOUT SHIFT (CLS)
 CLS measure how smooth and predictably elements load into the page, because if the user feels like is predictable
 they can start to interact sooner.
 
@@ -190,7 +190,7 @@ The use of skeletons should prevent layout shifts, because the space is reserved
 layout does not move around it.
 
 
-INTERACTION TO THE NEXT PAINT (INP)
+2.2.3 INTERACTION TO THE NEXT PAINT (INP)
 How long does it take between an interaction and the next the browser can paint.
 
 How quickly users can interact.
@@ -229,3 +229,341 @@ The classification is 0 to 200ms as GOOD, between 200ms and 500ms as NEEDS IMPRO
 
 That's the importance of using Spinners or Loading messages between calls and interactions, because the spinners and
 the loading messages are considered as a painting.
+
+
+2.3 MORE METRICS
+
+2.3.1 TIME TO FIRST BYTE
+TTFB is the time it takes for the browser to receive the first byte of data from the server after making a request.
+
+It is measuring your server and network performance.
+
+START TIME > REDIRECTED > SERVICE WORKER INIT > SERVICE WORKER FETCH EVENT> HTTP CACHE > DNS > TCP > REQUEST >
+EARLY HINTS > RESPONSE ||   TTFB   || PROCESSING > LOAD
+
+In TTFB if the time is less than 800ms is considered as GOOD, if is between 800ms and 1800ms is NEEDS IMPROVEMENT and
+after 1800ms is POOR;
+
+- 0 to 800ms = GOOD;
+- 800ms to 1800ms = NEEDS IMPROVEMENT;
+- after 1800ms = POOR.
+
+TTFB affects your LCP, because if the TTFB is slow the LCP will be slow too.
+
+
+2.3.2 FIRST CONTENTFUL PAINT
+It is a kind of LCP, but is the First Content instead of the Largest Content.
+
+Is about how fast your site visibly loads the something.
+
+The FCP is the first time the browser renders any content on the page, including text, images, and other elements.
+
+To be considered as GOOD the FCP needs to be less than 1.8sec, between 1.8sec and 3.0sec is NEEDS IMPROVEMENT and after 3.0sec is POOR;
+
+- 0 to 1.8sec = GOOD;
+- 1.8sec to 3.0sec = NEEDS IMPROVEMENT;
+- after 3.0sec = POOR.
+
+FLAME CHART EXAMPLE
+|--------------------- LCP ---------------------|
+|------- FCP --------|
+|-- TTFB --|
+
+
+2.4 CAPTURING METRICS
+
+2.4.1 PERFORMANCE API
+The performance API and the Performance Observer API are the two APIs that are used to capture the metrics.
+
+The performance API have some key things that are interesting:
+- performance.now() - gives you the time in milliseconds since the page started loading, it is the high-resolution
+timestamp relative to start of page;
+
+- performance.mark() - allows you to create a mark in the performance timeline;
+
+- performance.measure() - allows you to measure the time between two marks;
+
+- performance.getEntriesByName() - allows you to get the entries by name;
+
+- performance.getEntriesByType() - allows you to get the entries by type;
+
+- performance.getEntries() - allows you to get all the entries, like Page Navigation, Resource Request, Performance
+ Events, Custom Events, etc.;
+
+- performance.clearMarks() - allows you to clear the marks;
+
+- performance.clearMeasures() - allows you to clear the measures;
+
+- performance.getEntriesByType('mark') - allows you to get the entries by type 'mark';
+
+
+2.4.2 PERFORMANCE OBSERVER API
+The problem of the Performance API is that it is not real-time, it is a snapshot of the performance and if you start
+to interact a lot with those metrics you probably will start to go down the performance just to get the metrics.
+
+The Performance Observer API allows you to observe the performance of the page in real-time and get the metrics as they
+happen.
+
+The Performance Observer API is a way to get the performance metrics in real-time and it is a way to get the metrics
+that are not available in the Performance API.
+
+- performanceObserver.observe() - allows you to observe the performance of the page in real-time;
+- performanceObserver.takeRecords() - allows you to take the records of the performance;
+- performanceObserver.disconnect() - allows you to disconnect the observer;
+- performanceObserver.getEntries() - allows you to get the entries of the performance;
+
+2.4.3 WEB-VITALS.JS
+Is a package from Google that allows you to get the Core Web Vitals metrics in real-time, and it is a way to get the
+metrics that are not available in the Performance API.
+
+The web-vitals.js allows you to subscribe to some particular events and handle all of the other idiosyncrasies about
+adding things together.
+
+Its like:
+"import { onLCP, onCLS, onINP } from 'web-vitals';
+
+onLCP(console.log);
+onCLS(console.log);
+onINP(console.log);"
+
+2.4.4 PERFORMANCE METRIC BROWSER SUPPORT
+If you want to use these metrics you will not measure Safari at all, because WEBKIT doesn't support the core web vitals
+and GECKO only supports the LCP but not the CLS and INP.
+
+- BLINK: Chrome, Edge, Opera, Samsung, Brave and Arc.
+- WEBKIT: Safari, Mobile Safari and Chrome on IOS.
+- GECKO: Firefox.
+
+3 TESTS AND TOOLS
+
+- Testing Methods;
+- Common Tools;
+- Real User Monitoring.
+
+3.1 TESTING PERFORMANCE METHODS
+
+Where do we measure from?
+Fundamentally, what we are doing is we have a host somewhere, it could be a server, it could be your cloud, it could be
+the hosting service, and then you're delivering that content across the Internet to your users and rendering it on their
+device. There's a couple of places that we can measure web performance from, the most common place is the Lab Data, when
+they create a test environment and run the test in a controlled environment, and the other is the Field Data, when they
+measure the performance of the page in the real world, with real users and real devices.
+
+The problem is any of this devices will measure what the users are really experiencing, because the users are
+using different devices, different networks, different browsers and different locations.
+
+
+3.1.1 STATISTICS
+
+3.1.1.1 AVERAGE PROBLEMS
+Average is the go-to tool that most people will use when they want to look at a lot of data. The measurement of the
+average users performances never will be the same as the median users performance, because the average is influenced
+by the outliers, and the median is not. The average is a good tool to look at the data, but it is not a good tool to
+look at the performance of the users, because the average is not a good representation of the user performance.
+
+For this reason when we talk about performance data we don't talk about averages we talk about percentiles
+
+3.1.1.2 PERCENTILES
+The percentiles iw the halfway of the user metrics, between the best performance data and the worst performance data.
+
+The 50th percentile is the median, and the 95th percentile is the 95% of the users that are performing better than
+the 95% of the users that are performing worse. The 95th percentile is the most common metric that we use to measure
+the performance of the users, because it is the most common metric that we use to measure the performance of the
+users.
+
+And then we conclude: LAB DATA IS EASIER AND FIELD DATA IS MORE ACCURATE. LAB DATA IS DIAGNOSTIC AND FIELD DATA IS
+EXPERIENCE.
+
+
+3.2 COMMON TOOLS
+
+3.2.1 LIGHTHOUSE
+Lighthouse is a tool that is used to measure the performance of the page in a controlled environment.
+
+To have a good measurement, the first thing to do in Lighthouse is to turn on the responsive mode. After ir we can
+choose the decive of the kind of user that we want to test, some good options is: Iphone 12 PRO or Small laptop, but
+you can create one for yourself or edit the existing devices.
+
+After, we can choose how we are connected to the internet, we can choose between 3G, 4G, 5G, WiFi or Bad Connection.
+
+And in the performance tab we can select configurations and in the CPU tab we can slow down the CPU to 4x, 6x or 20x. To
+select 6x could be a good option to test the performance of the page in a real world scenario.
+
+After these configurations we can run to Analyze the page and see the results.
+
+3.2.1.1 ANALYZING RESULTS IN LIGHTHOUSE
+- Performance Score: The performance score is a number between 0 and 100 that represents the performance of the page.
+- Performance Metrics: The performance metrics are the metrics that are used to measure the performance of the page.
+- Performance Audits: The performance audits are the audits that are used to measure the performance of the page.
+
+
+3.2.2 WEB VITALS EXTENSION
+The web vitals extension is a Chrome extension that allows you to measure the performance of the page in real-time,
+and it is a way to get the metrics that are not available in the Performance API.
+
+
+3.2.3 CHROME USER EXPERIENCE REPORT
+The Chrome User Experience Report is how Google knows how your performance is,  so it can decide wether or not it wants
+to penalize your ranking or not.
+
+A Blink browser is capable to capture the Core Web Vitals.
+
+3.2.4 SPEED CHECK
+The speed check is a tool that allows you to measure the performance of the page in real-time, and it is a way to
+get the metrics that are not available in the Performance API.
+
+You can check, in the tool,the web performance of the site that you want, showing all the core web vitals report and
+evaluation.
+
+3.2.5 PAGESPEED INSIGHTS
+
+pagespeed.web.dev
+
+Its basic Lighthouse but running as a synthetic test.
+
+3.2.6 WEBPAGE TEST
+
+webpagetest.org
+
+This is a full report engine, you can check a lot of metrics of any website that you want.
+
+
+3.3 REAL USER MONITORING
+Real User Monitoring (RUM) is a data that you can run to collect that data from those real users yourself.
+
+There's a comparison between CRuX vs Real User Monitoring
+
+CRuX
+- Field Data;
+- Logged in Chrome Users;
+- Top 1M Public Websites;
+- Anonymous and Public;
+- 28 Day Rolling Average;
+- Google Big Query.
+
+Real User Monitoring
+- Field Data;
+- All Users;
+- Private Sites;
+- Private Details;
+- Realtime;
+- Custom Dashboard and Alerts.
+
+
+3.3.1 RUM TOOLS
+The difference between then is about the project that you are developing, if you are ina big enterpise place or have a
+big website you can go to some Enterprise Rum, like:
+- Akamai mPulse (This is the best choice if money is not the problem);
+- Dynatrace;
+- AppDynamics;
+- DataDog;
+- Sentry.
+
+If you are in a simple project and wants to monitor only your own project you can use some Project RUM, like:
+- Request Metrics;
+- SpeedCurve;
+- RUMVision;
+- Pingdom;
+- Raygun.
+
+Just about REQUEST METRICS:
+
+requestmetrics.com
+
+- Real Time Data;
+- Filtering Views;
+- User Information;
+- Watefall;
+- Core Web Vital Attribution;
+- CrUx Integration;
+- Resource Reports;
+
+Its totally customizable and offers to the developer a lot of usefull and trustful information about the performance
+of the page.
+
+
+4. SETTING GOALS
+
+- How fast is enough?
+- Who gets to decide;
+- Understanding users;
+
+
+4 .1 HOW FAST IS ENOUGH?
+Users tend to remember thing slower than how they actually happened.
+
+The Psychology of Waiting
+1 - People want to start;
+2 - Bored waits feel slower;
+3 - Anxious waits feel slower
+4 - Unexplained waits feel slower;
+5 - Uncertain waits feel slower;
+6 - People will wait for value.
+
+The people not only wait for value, but they want to wait longer if something is perceived as high value.
+
+
+4.2 WHO GETS TO DECIDE?
+The short answer is NOT YOU.
+
+There's three people, three concepts that get to decide what's fast enough:
+
+- User Experience;
+- Competitors;
+- SEO Page Rank.
+
+For this, you only need to thought about it: What do your users tell you, What do your competitors tell you and
+what does SEO tell you.
+
+4.2.1 USER EXPERIENCE
+If you look at user experience, to understand what user experience is telling you about web performance you have to look
+at your business metrics, not your web performance metrics. So what your business metrics are will depend on your unique
+situation, but it could be things like:
+
+- Bounce Rate;
+- Session Time;
+- Add-to-Cart Rate;
+- Cart Abandonment Rate;
+- Conversion Rate.
+
+Follow your Business Metrics. You have to look at your metrics and how your business metrics and performance metrics
+relate. Because your users will be value different things and will be affected at different thresholds.
+
+4.2.2 COMPETITORS
+For a user to notice the difference between you and them, generally, you need to be 20% faster. The Weber's Law, the
+rule of the 20% is a good rule of thumb to follow.
+Target is just 4% faster than Walmart, but the users don't notice and in reality, nobody cares. User's not notice 4%
+difference.
+
+Instead, Target is 57% faster than KMart, and the results of the performance ranting and conversion rate are noticed,
+the users feel the difference and see that as a clearly faster site.
+
+4.2.3 SEO PAGE RANK
+You need to have a good measurement over the Core Web Vitals and the SEO Page Rank, because if you don't have a good
+rating you probably will be penalized on your page rank.
+
+
+4.3 UNDERSTANDING USERS
+
+Who are these users?
+
+First of all, are they users of Mobile Devices or Desktop Devices? or better, What is the size of the screen that they
+are using?
+
+What you see in your workstation or in your developer laptop, it's probably nothing like what your real users do.
+
+Other thing is about the Operational System, are they users of Android? IOS? Windows? Linux?
+
+So the average user on the internet is nowhere close to what we typically of and what we tipically have in our pockets
+as developers.
+
+Network speed is another issue, so if you're trying to base maybe your chrome speed tests on, these would be good
+numbers to base your throttles based on how you should things down.
+
+The future is not evenly distributed yet, because those numbers are wildly different depending on where in the world
+you go. Some places, connection speeds is 250 megabits or better and other places crawl along at less than 10.
+
+You should understand your users, using an analytics tool or real user monitoring tool, you should understand who your
+users are, like what operating system, browser, device, network speed, what country, etc. and then you can set your
+goals based on that.
+
