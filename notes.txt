@@ -567,3 +567,217 @@ You should understand your users, using an analytics tool or real user monitorin
 users are, like what operating system, browser, device, network speed, what country, etc. and then you can set your
 goals based on that.
 
+
+
+5 IMPROVING
+
+The first of all, focus on the easiest fixes for your worst metric from your real user data. If you're not basing this
+off of real user data, you don't really know what you are working on. If you are basing your measurement only in
+Lighthouse score,  you don't know if that's real, you don't know what that Lighthouse score was represents reality or
+the real users.
+
+So base it off of real data from CrUx or from your ram tool, and then look at whichever metric that's interesting to
+you is the worst one, because if you're just starting, there might be more than one that's bad, but focus on the worst
+one, and then do the easiest thing for your structure first because you don't need to do everything.
+
+We will see:
+
+- Improving TTFB;
+- Improving FCP;
+- Improving LCP;
+- Improving Returning Experience;
+- Improving CLS;
+- Improving INP;
+
+
+5.1 IMPROVING TTFB
+
+Time To First Byte is how quickly your host responds to the request and TTFB doesn't exist in isolation, it is part of
+FCP, which is part of LCP. Even if you  are trying to make your LCP faster and the TTFB are slow, that's a big
+contributing factor, and it's gonna make everything else faster along the way, and it's gonna make everything else
+faster along the way.
+
+
+5.1.1 TTFB IMPROVEMENT TACTICS
+
+1. Compress HTTP Responses;
+2. Efficient Protocols;
+3. Host Capacity;
+4. Host Proximity.
+
+
+5.1.1.1 COMPRESS HTTP RESPONSES
+
+Reduce the size of plain text HTML, CSS, Javascript. The way to do that is with a couple of protocols called Gzip and
+Brotli.
+
+In the example, the compressing by Gzip made the document with 25% of the original size and in Brotli was 1.7% of the
+original file.
+
+
+5.1.1.2 EFFICIENT PROTOCOLS
+
+HTTP 1.1 was the first protocol, HTTP 2.0 was an improvement in its protocol and have improved the number of
+requisitions over client and server. Now we have the HTTP 3.0, this protocol don't use a TCP Protocol, instead of it,
+he uses a protocol named QUIC, which is a UDP Protocol.
+
+The difference between an TCP Protocol and a UDP Protocol is that TCP request on the right-hand side is guaranteed, so
+if you are talking over TCP, I send you something, and you acknowledge that you got it by saying ACK, and then I send
+something else, and then you say, ACK... There's a redundant step of communication that happens for every single request
+to acknowledge that the other party received the information that I just sent, over and over and over. Whereas the UDP
+doesn't really give a crap if the other person got it. e simply throws away what the user request, it's a little bit
+more faulty in theory, but it's way faster, because you don't have to sit there and wait to make sure the other party
+got it.
+
+The HTTP 3.0 Drawbacks is:
+- Require HTTPS ( so does HTTP/2 );
+- UDP Networking;
+- Difficult to Debug (curl);
+
+
+5.1.1.3 HOST CAPACITY
+
+You need to right-sizing your host for your workload, making sure that you've given the appropriate amount of capacity
+to your service so that it can turn things on fast. You need to remove the artificial delay.
+
+
+5.1.1.4 HOST PROXIMITY
+
+Put your host close to your users.
+
+After it, we compressed our assets, so we're shipping fewer bytes over the wire. We are using an efficient protocol, so
+that we're not being chatty talking to them, and we made sure our server was big enough for what we were doing.
+
+We should always strive to put our host as close to the user as we can.
+
+So, if we have the host and the user, there's a bunch of hidden things that don't show up in Chrome DevTools, but are
+happening under the covers, in terms of how these two things talk to each other over a network. So when the host is
+trying to return something, the host exists somewhere, and there's a regional network, like the data center that it's
+in, the city that it's in, the ISPs that are a part of there's a bunch of hops that have to happen there. And then once
+it's to the main trunks of the Internet, it still has to cross the world, it still has to jump from one part of the
+world to another. And then once it's close to the user, it pops back into another regional network and bounces around
+to the right city and the right ISP and then the last mile all the way to the user. And so, there's a lot of things
+involved.
+
+In the specific case of the example, we're going from Minneapolis to Amsterdam, the time that it takes to do all of
+those hops is 117 milliseconds.
+
+That's what a Content Delivery Network is or a CDN, the CDN is the ability for you to put hosts all over the world in
+much more regional networks, and those hosts basically make a copy of your content from your original host. After that,
+everything can be served from the content delivery network directly, and we no longer have to pay that tax of crossing
+around the world.
+
+Bunny CDN is an example of a tool that makes this kind of work.
+
+The CDN did not need to go to Amsterdam to get that cache, it had a copy of this webstie in its edge somewhere in the
+United States, somewhere close to where we are right now, that it could return from. We did not have to cross pipes
+across the world, this is why CDN's are important.
+
+After all these adjustments, the TTFB is 0.02 seconds, and was 1.3 seconds in the beginning.
+
+So, this is the tactics to improve our TTFB rating, we need to:
+
+1. Compress HTTP Responses;
+2. Use efficient protocols, like HTTP 2 or HTTP 3;
+3. Set the necessary amount of our Host Capacity;
+3. Put our Host close to our users.
+
+In reality, we didn't change any content in the code.
+
+
+
+5.2 IMPROVING FCP
+
+The measurement is: How fast your site visibly loads something, but just make sure that your data are telling you that's
+a problem for you.
+
+These are the tactics to improve our FCP:
+
+1. Remove Sequence Chains;
+2. Preloading Resources;
+3. Lazy Load Resources.
+
+
+5.2.1 REMOVE SEQUENCE CHAINS
+
+First thing, we're gonna collapse our dependencies. Generally, CSS, Fonts and this kind of requests are blocking the
+render, with that, they prevent the page from rendering until complete.
+
+The reason is we're using modern CSS, and modern CSS supports import statements, and import lets us say, hey, this CSS
+file also uses that other CSS file, go get it. And if we leave and import in the code that we actually ship to the user,
+that's creating a dependency, it's creating a sequence. So, we have one CSS file that references another CSS file, that
+references another CSS file, and we've created a sequence in our code. With the fonts are happening the same. With the
+Javascript files are happening the same, one file points to another file and so on.
+
+So how do we remove this?
+
+You can use some kind of bundler, like Webpack, Rollup or Vite. Rather than letting the browser execute these dependency
+between files at runtime, you prepackage them at developer time, at build time using a bundler.
+
+That's the solution: you need to bundle your Javascript or your CSS or whatever into not having import statements in the
+final shipped files.
+
+Lightning CSS is an example of a CSS parser, transformer, bundler and minifier.
+
+
+5.2.2 PRELOAD RESOURCES
+
+Start critical path resources as soon as possible, the central question is: What resources do you absolutely need to
+have in order to render the page? How do we get those started as soon as we can?
+
+In the example of the course, the problem is with the request of Google Fonts, where generally are called in some CSS
+file, so that CSS file has to come down before those fonts can be loaded.
+
+When you request a Font of Google Font, they try to optimize as little bit, generally with two link statements with
+Link preconnect instructions, with that the browser goes ahead and try to start up a connection to those API's before
+you know we need them.
+
+This solves a part of the problem, because it like starts up connections, but it doesn't actually tell it to go and get
+the files.
+
+Another attribute is the link preload, specifically in the font request, now link preload allows you to basically
+instruct the browser to fetch something earlier than it knows about it otherwise. If you know you need something, if you
+know something is important, and this is gonna be blocking for your path, you tell the browser to go ahead and start
+getting it earlier with Link preload.
+
+So what we can preload? We can preload styles, you can preload scripts, you can preload images, you can preload fonts
+and you can even preload a call to fetch.
+
+The limitation is, fonts and fetch requires you to add the crossorigin attribute to that link, which means it's gonna
+need the CORS headers, the crossorigin resource sharing headers. You have to be sure that the font or the API that
+you're calling, supports your ability to load these things from your website.
+
+Pulling those fonts locally is highly recommended instead make request to Google Fonts servers.
+
+
+5.2.3 LAZY LOADING RESOURCES
+
+Javascript is Parser Blocking, it prevents parsing content, rendering, and main execution. When the browser encounters
+a script tag, it immediately starts downloading it, and as soon as it's done downloading it, it stops what it's doing,
+and executes it, right then and there. It prevents parsing any further content, it prevents any further rendering, and
+prevents main execution from happening. So, we need to defer it, we need to tell it to execute later.
+
+Instead of defer we can async too, but what's the real difference between them?
+
+They are not exactly the same thing, there's a subtle difference between them, when we decorate our javascript with the
+async we are saying to go ahead and start downloading it, whenever you're ready, but as soon as it's done, it will still
+block and execute, or block, evaluate, compile, and execute is whenever it's done. It downloads lazy but executes
+blocking, it executes as soon as it's ready.
+
+Defer says, go ahead and download this whenever you're ready, but i will not ever start to execute it until just before
+DOMContentLoaded. It's gonnae take all the scripts that are deferred, and it's gonna wait until DOMContentLoaded is
+about to happen, and then it's going to execute them.
+
+It simple waits for everything else to be done before firing or before executing things right before DOMContentLoaded.
+
+You almost never want async, in most cases you will only use Defer. Multiple Deferred scripts will execute in order
+they appear.
+
+If you use type Module will always be deferred, so you don't need to declare the defer in type modules.
+
+About the correct place to put our scripts is in the Head tag or the Body tag it doesn't matter anymore.
+
+
+
+5.3 IMPROVING LCP
+
