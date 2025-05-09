@@ -781,3 +781,186 @@ About the correct place to put our scripts is in the Head tag or the Body tag it
 
 5.3 IMPROVING LCP
 
+This metric is part of the Core Web Vitals, and what we will think about is: How fast your site visibly loads the most
+important element (largest element).
+
+If we improve FCP and TTFB we automatically improve LCP.
+
+If we observe the LCP and how LCP breaks down, there's three kind or parts of LCP:
+
+- The Resource Delay;
+- The Resource Duration;
+- The Render Delay.
+
+LCP is a resource, usually is an image or a video. It's not always those things but nine times out of ten, it's an
+image. The question is: How long is the delay before we can start downloading our image? That's the resource delay.
+
+The resource duration is how can we make getting that LCP element as fast as we can. And then, what's usually 99,9% of
+the problem of the time not a problem, is the render delay, which is, you have the element, you're ready to show it but
+there's too much Javascript in the way and you can get a render event together to actually show this thing. Largest,
+that's not an issue for almost anydoy except people who use obnoxiously huge amounts of Javascript.
+
+5.3.1 LCP IMPROVEMENT TACTICS
+
+1. (More) Lazy Loading;
+2. Eager Loading;
+3. Optimizing Images.
+
+
+5.3.1.1 (MORE) LAZY LOADING
+
+We're going to remove resources that are not on the critical path.
+
+Usually, we can have a lot of other images loading, and in reality those images are not important, the most important
+thing to load first is the LCP content.
+
+The resource delay, in this case, is the time that we are waiting to start to load the LCP when the thread are busy
+loading another resources that are not important.
+
+The resource duration starts when the another content finishes his loading and the LCP starts to load.
+
+To fix it, we can decorate the another content with the loading="lazy" attribute in the HTML Tag, so the browser will
+not load it until the user scrolls down the page. This is a good way to lazy load images, but not all browsers support
+it, so we can use a polyfill to make it work in all browsers.
+
+You can do it with images and iframes. With this simple fix, we can remove the resource delay and the resource duration
+and make the LCP load faster. The LCP will start to load before the another content and the resource duration will
+become smaller.
+
+
+5.3.1.2 EAGER LOADING
+
+Eager loading is the opposite of lazy loading, so we can use it to load the LCP content before the another content. We
+need to start critical path as soon as possible.
+
+We can set the attribut preload in the HTML Tag, so the browser will start to load the LCP content before the another
+content. This is a good way to eager load images, but not all browsers support it, so we can use a polyfill to make it
+work in all browsers.
+
+Another possibility is the attribute fetchPriority, which is a new attribute that allows you to set the priority of the
+resource. This works on images, scripts and links. This does not work on Gecko, not work in Firefox too, but it works in
+Chrome, Edge and Safari. It works where LCP matters for SEO.
+
+
+5.3.1.3 OPTIMIZING IMAGES
+
+The rule is: Send as few bytes as possible.
+
+We can ask about we already add HTTP Compression, it's not enough, because we need to optimize the images too.
+
+HTTP Compression works great on plain text, but not so great on images, because images are already compressed and
+compressing them again doesn't really help.
+
+There's two things over this topic:
+
+A. Image Format;
+B. Responsive Images.
+
+The same image in JPG have 13kb, in PNG have 5.5kb, in WebP have 2.7kb and in AVIF have 2.6kb.
+Another comparision is with an Photo instead one image, in JPG the photo have 32.7kb, 90.6kb in PNG, 12.1kb in WebP and
+11.8kb in AVIF.
+
+In some cases we don't need to convert for WebP or AVIF, we can simples make a better compression over the JPG and PNG
+files.
+
+The tip about Responsive Images is we don't a 2800px image in a mobile device, either in a Tablet too, so the best
+choice is to use the size of the images adapted to the size of the screen.
+
+For example: for the desktop we should have 2800px, 720px for tablets and 600px for mobile devices. We can do it with a
+picture tag in HTML and set the sizes for each device. The browser will choose the best image for the device.
+
+The imagePngResizer.mjs in this project is an example of a PNG Resizer, that will resize the image to the size that we
+set in the sizes attribute.
+
+For SVG's we don't need to convert because they are vector and not images properly, so the HTTP compress that we are
+doing should take care of that. If we still need some kind of optimization in the SVG's we can some tools like SVGOMG.
+
+
+5.4 IMPROVING RETURNING EXPERIENCE
+
+This topic is about caching, we can do a browse response caching, so the next time our users make a request to our CDN
+we can return the cached version of the page. This is a good way to improve the performance of the page, because we
+don't need to make a request to the server again, we can return the cached version of the page.
+
+And is about all the overhead that goes with making that request, so if it was the first request, it has to do a DNS
+lookup and a TCP and all those sort of things. If we wanted to get around some of that, the CDN could return caching
+headers, so that the browser would cache the page for a certain amount of time, and then the next time the user made a
+request, it would just return the cached version of the page, and it wouldn't have to do all those things again.
+
+In this case, the CDN will check the header request and will check if we have a fewer version of the page, if it's not
+the case, he will deliver the cached content, so the cached header simplify the process of the request.
+
+This is one way of do it but there's a second one, because what we just did still involved a request, a request still
+had to be sent and returned, if we didn't have a CDN, we'd still have to pay the Amsterdam to Minneapolis tax of that
+round trip, even though it's an empty response.
+
+So the another way of we can do it is with Cache-Control and Expires Headers. So instead of check if this is the latest
+version of our content, we can say, this file that i gave you, you can keep it for this many seconds, and it doesn't
+expire until this date. You can explicitly set that. And then what will happen is it says to the user or to the user's
+browser, when the next time they ask for it, if the date hasn't passed yet, the request is free, it doesn't happen. The
+request is never even maid, it will say from disk cache, because the browser will just never make that overhead request
+to the host.
+
+The problem is if we tell the browser to cache a Javascript file, it's just called scripts.js, all those browsers will
+cache that Javascript file, that version of that file until 2025, December 31, for example. So if you want to change
+that Javascript file, you've gotta change the name of it, or the user will continue operating on the old one forever.
+This is one the reasons why just about every Javascript bundler will stick some unique string into the file name. It's
+to break caching problems, like this, so that you can cache or tell the end user's browser do cache files for long
+periods of time.
+
+
+
+5.5 IMPROVING CLS
+
+The CLS is a measure of how much the content on the page shifts around while the page is loading. It is about how smooth
+and predictably elements load into the page, and how much the layout moves around it.
+
+Arguably, we might have made our CLS a little worse with what we did. Because we instructed the browser to lazy load a
+bunch of images, which means some images are gonna come in later than we thought and push things around.
+
+For improving the CLS there's just one tactic to fix that, you need to give to your layout size hints. Like here's how
+big things are going to be ahead of when actually appear.
+
+CLS in a lot of cases, is a problem created by LCP performance tactics. We try to delay a bunch of stuff to get LCP
+fast, and it creates layout shift problems down stream, and we fix those problems by giving appropriate layout hints.
+
+We can fix these lazy-loaded image problems simply by just specifying a height and width. We need to set it in the HTML
+tag like this:
+
+<img src="..." width="600" height="400" loading="lazy" alt="...">
+
+We don't need to put the PX, because some browsers will break it, so just put the number. It's not to even how big you
+gonna display it, just put how big the image is. This is not about the raw numbers, it's about the aspect ratio. The
+browser is just gonna take those numbers and figure out how big is the dimension, how ibg is the aspect ratio of this
+image. So wherever ia have to put it, I know the size dimension.
+
+The another reason of that we get layout shift is from a late-rendered content. So asynchronous content that gets
+client-side rendered, and we have some of that in our example.
+
+We can simply set the height of the image, with that the content will always will have his reserved space to shown, but
+instead of only define the height and the width, we can set our content to be shown over the page, with the z-index,
+so we will not push the content down.
+
+In resume, this is the two ways to fix the CLS problem, we can say how big this thing is or you can say, this thing
+that's late, this thing floats above the document.
+
+
+
+5.6 IMPROVING INP
+
+The Interaction to Next Paint is how quickly the users can interact with the page.
+
+There's only one solution to the INP, is Yield the main thread.
+
+The interaction to next paint is all the time between click and that paint, in our example, what we're currently at is
+1200ms because the call are processing in the main thread a lot of functions and other stuffs, and we have two ways of
+fixing it, we can schedules code to run in the future and allows other work to run. The main thread are blocked handling
+all the Javascript, all the events, all the layouts. We need to get out of this way and set timeout is the tried and
+true way that everybody knows. You schedule some code to run in the future, and you allow other work to run.
+
+The other thing we can do is called requestAnimationFrame, it's like some more specific version of set timeout.
+
+RequestAnimationFrame lets you schedule code to run just before the next time the browser should paint. The reason this
+exists is for animations like high-velocity animations, you're doing some that's, very multimedia, very game-like and
+you wanna execute an animation this is what you would use for that and this is valuable because it lets us control the
+timing between the main thread and when paint happens.
